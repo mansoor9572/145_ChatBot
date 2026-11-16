@@ -54,6 +54,39 @@ chatForm.addEventListener("submit", async (event) => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let eventName = "message";
+
+        const processLine = (line) => {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith("event:")) {
+                eventName = trimmedLine.slice(6).trim();
+                return;
+            }
+
+            if (!trimmedLine.startsWith("data:")) return;
+
+            const data = trimmedLine.slice(5).trim();
+            const currentEvent = eventName;
+            eventName = "message";
+            if (!data || data === "[DONE]") return;
+
+            let token;
+            try {
+                token = JSON.parse(data);
+            } catch (error) {
+                console.error("Gagal membaca token:", error);
+                return;
+            }
+
+            if (currentEvent === "error") {
+                throw new Error(typeof token === "string" ? token : "Gemini stream error");
+            }
+
+            if (typeof token !== "string") return;
+            botResponse += token;
+            botContent.textContent = botResponse;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
 
         while (true) {
             const { done, value } = await reader.read();
@@ -63,29 +96,17 @@ chatForm.addEventListener("submit", async (event) => {
             const lines = buffer.split("\n");
             buffer = lines.pop();
 
-            for (const line of lines) {
-                const trimmedLine = line.trim();
-                if (!trimmedLine.startsWith("data:")) continue;
-
-                const data = trimmedLine.slice(5).trim();
-                if (!data || data === "[DONE]") continue;
-
-                try {
-                    const token = JSON.parse(data);
-                    if (typeof token !== "string") continue;
-
-                    botResponse += token;
-                    botContent.textContent = botResponse;
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                } catch (error) {
-                    console.error("Gagal membaca token:", error);
-                }
-            }
+            for (const line of lines) processLine(line);
         }
 
-        if (botResponse) {
-            messages.push({ role: "assistant", content: botResponse });
+        buffer += decoder.decode();
+        if (buffer.trim()) processLine(buffer);
+
+        if (!botResponse.trim()) {
+            throw new Error("Gemini selesai tanpa mengirim teks. Coba lagi.");
         }
+
+        messages.push({ role: "assistant", content: botResponse });
     } catch (error) {
         console.error(error);
         botContent.textContent = `Maaf, terjadi kesalahan: ${error.message}`;

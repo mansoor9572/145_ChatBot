@@ -130,7 +130,7 @@ app.post("/api/chat", async (req, res) => {
             return res.status(500).json({ error: message });
         }
 
-        res.write(`data: ${JSON.stringify(message)}\n\n`);
+        res.write(`event: error\ndata: ${JSON.stringify(message)}\n\n`);
         res.end();
     }
 });
