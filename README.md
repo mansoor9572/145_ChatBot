@@ -21,3 +21,6 @@ Set `GEMINI_MODEL` to change the model and `PORT` to change the local server por
 Keep `.env` private. Do not commit API keys or share them in browser code.
 screens
 <img width="662" height="892" alt="image" src="https://github.com/user-attachments/assets/f45cb93f-7f54-4863-a2b8-9235b0906e53" />
+
+<img width="851" height="903" alt="image" src="https://github.com/user-attachments/assets/6cd53c33-5e20-4ebe-9843-481ec10bdb20" />
+
