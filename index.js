@@ -73,7 +73,52 @@ app.post("/api/chat", async (req, res) => {
             });
         }
 
-        return res.status(501).json({ error: "Streaming belum diaktifkan" });
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        const processLine = (line) => {
+            if (!line.startsWith("data:")) return;
+
+            const data = line.replace(/^data:\s*/, "").trim();
+            if (!data || data === "[DONE]") return;
+
+            try {
+                const json = JSON.parse(data);
+                const content = (json.candidates?.[0]?.content?.parts || [])
+                    .map((part) => part.text || "")
+                    .join("");
+
+                if (content) {
+                    res.write(`data: ${JSON.stringify(content)}\n\n`);
+                }
+            } catch (error) {
+                console.error("Gagal parsing streaming data:", error);
+            }
+        };
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                processLine(line.trim());
+            }
+        }
+
+        buffer += decoder.decode();
+        if (buffer.trim()) processLine(buffer.trim());
+
+        res.write("data: [DONE]\n\n");
+        res.end();
     } catch (error) {
         console.error("Gemini request error:", error);
         return res.status(500).json({
