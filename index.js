@@ -56,6 +56,7 @@ app.post("/api/chat", async (req, res) => {
                 "Content-Type": "application/json",
                 "x-goog-api-key": apiKey
             },
+                signal: AbortSignal.timeout(45000),
             body: JSON.stringify({
                 contents,
                 generationConfig: {
@@ -121,9 +122,16 @@ app.post("/api/chat", async (req, res) => {
         res.end();
     } catch (error) {
         console.error("Gemini request error:", error);
-        return res.status(500).json({
-            error: "Terjadi kesalahan saat menghubungi Gemini"
-        });
+        const message = error.name === "TimeoutError"
+            ? "Gemini tidak merespons dalam 45 detik. Coba lagi."
+            : "Terjadi kesalahan saat menghubungi Gemini. Coba lagi.";
+
+        if (!res.headersSent) {
+            return res.status(500).json({ error: message });
+        }
+
+        res.write(`data: ${JSON.stringify(message)}\n\n`);
+        res.end();
     }
 });
 
