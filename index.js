@@ -29,6 +29,23 @@ app.post("/api/chat", async (req, res) => {
         });
     }
 
+    const contents = messages
+        .filter((message) =>
+            message &&
+            ["user", "assistant", "model"].includes(message.role) &&
+            typeof message.content === "string"
+        )
+        .map((message) => ({
+            role: message.role === "assistant" ? "model" : message.role,
+            parts: [{ text: message.content }]
+        }));
+
+    if (contents.length === 0) {
+        return res.status(400).json({
+            error: "Tidak ada pesan yang bisa dikirim ke Gemini"
+        });
+    }
+
     return res.status(501).json({
         error: "Gemini chat belum dikonfigurasi"
     });
