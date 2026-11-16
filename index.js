@@ -15,10 +15,17 @@ app.get("/", (req, res) => {
 
 app.post("/api/chat", async (req, res) => {
     const messages = req.body?.messages;
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({
             error: "Messages harus berupa array yang tidak kosong"
+        });
+    }
+
+    if (!apiKey) {
+        return res.status(500).json({
+            error: "Gemini API key tidak ditemukan. Tambahkan GEMINI_API_KEY ke file .env."
         });
     }
 
