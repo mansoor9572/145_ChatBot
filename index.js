@@ -13,6 +13,20 @@ app.get("/", (req, res) => {
     res.redirect("/index.html");
 });
 
+app.post("/api/chat", async (req, res) => {
+    const messages = req.body?.messages;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({
+            error: "Messages harus berupa array yang tidak kosong"
+        });
+    }
+
+    return res.status(501).json({
+        error: "Gemini chat belum dikonfigurasi"
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
