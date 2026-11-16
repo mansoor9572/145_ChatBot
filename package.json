@@ -1,7 +1,7 @@
 {
   "name": "145-chatbot",
   "version": "1.0.0",
-  "description": "A streaming Google Gemini chatbot built with Express.",
+  "description": "A streaming OpenRouter chatbot built with Express.",
   "license": "ISC",
   "author": "",
   "type": "commonjs",

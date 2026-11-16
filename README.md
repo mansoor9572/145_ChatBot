@@ -1,20 +1,20 @@
 # 145 ChatBot
 
-A small browser chatbot that streams replies from Google Gemini through an Express server. The API key stays on the server and is never sent to the browser.
+A small browser chatbot that streams replies from OpenRouter through an Express server. The API key stays on the server and is never sent to the browser.
 
 ## Requirements
 
 - Node.js 18 or newer
-- A Gemini API key from Google AI Studio
+- An OpenRouter API key
 
 ## Setup
 
 1. Install dependencies with `npm install`.
-2. Copy `.env.example` to `.env` and add your Gemini API key.
+2. Copy `.env.example` to `.env` and add your OpenRouter API key.
 3. Start the server with `npm start`.
 4. Open [http://localhost:3000](http://localhost:3000).
 
-Set `GEMINI_MODEL` to change the model and `PORT` to change the local server port.
+Set `OPENROUTER_MODEL` to change the model (defaults to `openrouter/free`) and `PORT` to change the local server port.
 
 ## Security
 

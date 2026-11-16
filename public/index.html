@@ -1,31 +1,47 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f2f2f2">
-    <title>Gemini Chatbot</title>
+
+    <title>Chatbot Nemotron</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <main class="chat-container">
-        <header class="chat-header">
-            <h1>Chatbot AI</h1>
-            <p>Powered by Google Gemini</p>
-        </header>
 
-        <section id="chat-box" class="chat-box" aria-live="polite" aria-label="Percakapan">
+<body>
+
+    <div class="chat-container">
+
+        <div class="chat-header">
+            <h1>Chatbot AI</h1>
+        </div>
+
+        <div id="chat-box" class="chat-box">
+
             <div class="message bot">
-                <div class="message-content">Halo! Ada yang bisa saya bantu?</div>
+                <div class="message-content">
+                    Halo! Ada yang bisa saya bantu?
+                </div>
             </div>
-        </section>
+
+        </div>
 
         <form id="chat-form" class="chat-form">
-            <label class="sr-only" for="user-input">Pesan</label>
-            <input id="user-input" type="text" placeholder="Ketik pesan..." autocomplete="off" required>
-            <button type="submit">Kirim</button>
+
+            <input type="text" id="user-input" placeholder="Ketik pesan..." autocomplete="off" required>
+
+            <button type="submit">
+                Kirim
+            </button>
+
         </form>
-    </main>
+
+    </div>
+
     <script src="script.js"></script>
+
 </body>
+
 </html>
