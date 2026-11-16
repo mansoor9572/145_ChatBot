@@ -14,22 +14,23 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/chat", async (req, res) => {
-    const messages = req.body?.messages;
-    const apiKey = process.env.GEMINI_API_KEY;
+    try {
+        const messages = req.body?.messages;
+        const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-        return res.status(400).json({
-            error: "Messages harus berupa array yang tidak kosong"
-        });
-    }
+        if (!Array.isArray(messages) || messages.length === 0) {
+            return res.status(400).json({
+                error: "Messages harus berupa array yang tidak kosong"
+            });
+        }
 
-    if (!apiKey) {
-        return res.status(500).json({
-            error: "Gemini API key tidak ditemukan. Tambahkan GEMINI_API_KEY ke file .env."
-        });
-    }
+        if (!apiKey) {
+            return res.status(500).json({
+                error: "Gemini API key tidak ditemukan. Tambahkan GEMINI_API_KEY ke file .env."
+            });
+        }
 
-    const contents = messages
+        const contents = messages
         .filter((message) =>
             message &&
             ["user", "assistant", "model"].includes(message.role) &&
@@ -40,14 +41,14 @@ app.post("/api/chat", async (req, res) => {
             parts: [{ text: message.content }]
         }));
 
-    if (contents.length === 0) {
-        return res.status(400).json({
-            error: "Tidak ada pesan yang bisa dikirim ke Gemini"
-        });
-    }
+        if (contents.length === 0) {
+            return res.status(400).json({
+                error: "Tidak ada pesan yang bisa dikirim ke Gemini"
+            });
+        }
 
-    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-    const response = await fetch(
+        const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+        const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`,
         {
             method: "POST",
@@ -65,14 +66,20 @@ app.post("/api/chat", async (req, res) => {
         }
     );
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        return res.status(response.status).json({
-            error: errorData.error?.message || "Terjadi kesalahan saat menghubungi Gemini"
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            return res.status(response.status).json({
+                error: errorData.error?.message || "Terjadi kesalahan saat menghubungi Gemini"
+            });
+        }
+
+        return res.status(501).json({ error: "Streaming belum diaktifkan" });
+    } catch (error) {
+        console.error("Gemini request error:", error);
+        return res.status(500).json({
+            error: "Terjadi kesalahan saat menghubungi Gemini"
         });
     }
-
-    return res.status(501).json({ error: "Streaming belum diaktifkan" });
 });
 
 app.listen(PORT, () => {
